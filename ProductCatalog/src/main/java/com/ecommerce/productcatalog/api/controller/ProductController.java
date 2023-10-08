@@ -8,6 +8,7 @@ import com.ecommerce.productcatalog.api.exception.NotFoundException;
 import com.ecommerce.productcatalog.api.model.Product;
 import com.ecommerce.productcatalog.api.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,19 +21,22 @@ import java.util.Optional;
 @RequestMapping("/products")
 public class ProductController {
 
-    @Autowired
-    private ProductService fakeStroreProductService;
+//    @Autowired
+//    private ProductService fakeStroreProductService;
+
+    @Qualifier("fakeStroreDBProductService")
+    ProductService productService;
     private ApiHelper apiHelper;
 
-    public ProductController(ProductService productService, ApiHelper apiHelper) {
-        this.fakeStroreProductService = productService;
+    public ProductController(@Qualifier("fakeStroreDBProductService") ProductService productService, ApiHelper apiHelper) {
+        this.productService = productService;
         this.apiHelper = apiHelper;
     }
 
     @GetMapping()
     public List<ProductResponseDto> getAllProducts() {
 
-        List<Product> allProducts = fakeStroreProductService.getAllProducts();
+        List<Product> allProducts = productService.getAllProducts();
 
         List<ProductResponseDto> responseDtos = new ArrayList<>();
         for (Product product : allProducts) {
@@ -45,7 +49,7 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ProductResponseDto getSingleProduct(@PathVariable Long productId) throws NotFoundException {
 
-        Optional<Product> productOptional = fakeStroreProductService.getSingleProduct(productId);
+        Optional<Product> productOptional = productService.getSingleProduct(productId);
         if (productOptional.isEmpty()){
             throw new NotFoundException("No Product found for product id - "+productId);
         }
@@ -54,13 +58,15 @@ public class ProductController {
     }
 
     @PostMapping
-    public ProductResponseDto addNewProduct(@RequestBody ProductRequestDto productRequestDto) {
+    public ResponseEntity<ProductResponseDto> addNewProduct(@RequestBody ProductRequestDto productRequestDto) {
 
         Product productRquest = apiHelper.convertProductRequestDtoToProduct(productRequestDto);
+        Product product = productService.addNewProduct(productRquest);
+        ProductResponseDto responseDto = apiHelper.convertProductToProductResponseDto(product);
 
-        Product product = fakeStroreProductService.addNewProduct(productRquest);
+        ResponseEntity<ProductResponseDto> responseEntity = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
-        return apiHelper.convertProductToProductResponseDto(product);
+        return responseEntity;
     }
 
     @PatchMapping("/{productId}")
@@ -68,14 +74,14 @@ public class ProductController {
 
         Product productRquest = apiHelper.convertProductRequestDtoToProduct(productRequestDto);
 
-        Product product = fakeStroreProductService.updateProduct(productId, productRquest);
+        Product product = productService.updateProduct(productId, productRquest);
 
         return apiHelper.convertProductToProductResponseDto(product);
     }
 
     @DeleteMapping("/{productId}")
     public boolean deleteProduct(@PathVariable Long productId) {
-        boolean b = fakeStroreProductService.deleteProduct(productId);
+        boolean b = productService.deleteProduct(productId);
 
         return b;
     }

@@ -19,6 +19,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.function.ServerRequest;
 
+import java.util.Date;
 import java.util.Map;
 
 @Component
@@ -72,7 +73,7 @@ public class ApiHelper {
 
     public Product convertProductRequestDtoToProduct(ProductRequestDto productDto) {
         Product product = new Product();
-        product.setId(productDto.getId());
+//        product.setId(productDto.getId());
         product.setTitle(productDto.getTitle());
         product.setPrice(productDto.getPrice());
         product.setDescription(productDto.getDescription());
@@ -80,7 +81,10 @@ public class ApiHelper {
         Category category = new Category();
         category.setName(productDto.getCategory());
         product.setCategory(category);
+
         product.setImageUrl(productDto.getImageUrl());
+        product.setCreatedAt(new Date());
+        product.setLastUpdatedAt(new Date());
 
         return product;
     }

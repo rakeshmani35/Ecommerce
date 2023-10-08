@@ -7,6 +7,7 @@ import com.ecommerce.productcatalog.api.dto.ProductRequestDto;
 import com.ecommerce.productcatalog.api.dto.ProductResponseDto;
 import com.ecommerce.productcatalog.api.model.Category;
 import com.ecommerce.productcatalog.api.model.Product;
+import com.ecommerce.productcatalog.api.repository.ProductRepository;
 import com.ecommerce.productcatalog.api.service.ProductService;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.MediaType;
@@ -31,6 +32,7 @@ public class FakeStoreProductServiceImpl implements ProductService {
 
     private ApiHelper apiHelper;
 
+
     public FakeStoreProductServiceImpl(RestTemplateBuilder builder, FakeStoreClient client, ApiHelper apiHelper) {
         this.templateBuilder = builder;
         this.client = client;
@@ -52,7 +54,7 @@ public class FakeStoreProductServiceImpl implements ProductService {
     public Optional<Product> getSingleProduct(Long productId) {
         FakeStoreProductDto singleProduct = client.getSingleProduct(productId);
 
-        if (singleProduct==null){
+        if (singleProduct == null) {
             return Optional.empty();
         }
 
@@ -63,25 +65,26 @@ public class FakeStoreProductServiceImpl implements ProductService {
     public Product addNewProduct(Product product) {
 
         ProductRequestDto requestDto = apiHelper.convertProductToProductRequestDto(product);
-
         FakeStoreProductDto fakeStoreProductDto = client.addNewProduct(requestDto);
-
         return apiHelper.convertFakeStoreProductDtoToProduct(fakeStoreProductDto);
+
     }
 
     @Override
     public Product updateProduct(Long productId, Product product) {
         ProductRequestDto productRequestDto = apiHelper.convertProductToProductRequestDto(product);
         FakeStoreProductDto fakeStoreProductDto = client.updateProduct(productId, productRequestDto);
+
+
         return apiHelper.convertFakeStoreProductDtoToProduct(fakeStoreProductDto);
     }
 
     @Override
     public boolean deleteProduct(Long productId) {
         FakeStoreProductDto fakeStoreProductDto = client.deleteProduct(productId);
-         if (fakeStoreProductDto==null){
-             return false;
-         }
+        if (fakeStoreProductDto == null) {
+            return false;
+        }
         return true;
     }
 
